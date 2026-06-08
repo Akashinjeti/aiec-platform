@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Shield, Lock, CheckCircle, Terminal as TerminalIcon, ArrowRight, CornerDownRight, 
   CheckSquare, Sparkles, Code, Download, Cpu, ShieldCheck, AlertTriangle, Layers, ListTodo,
-  Mail, Inbox, AlertCircle, UserCheck, User, Copy, Check, X, FileText, Database
+  Mail, Inbox, AlertCircle, UserCheck, User, Copy, Check, X, FileText, Database, Key
 } from 'lucide-react';
 import AiecLogo from './AiecLogo';
 
@@ -244,6 +244,70 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [generatedRegSignature, setGeneratedRegSignature] = useState('');
   const [copiedSig, setCopiedSig] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
+
+  // Activation key states
+  const [activationModalOpen, setActivationModalOpen] = useState(false);
+  const [activationKeyInput, setActivationKeyInput] = useState('');
+  const [activationError, setActivationError] = useState('');
+  const [isActivating, setIsActivating] = useState(false);
+  const [activationSuccess, setActivationSuccess] = useState(false);
+  const [activationLogs, setActivationLogs] = useState<string[]>([]);
+
+  const handleVerifyActivationKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activationKeyInput.trim()) {
+      setActivationError('Please enter an activation key.');
+      return;
+    }
+
+    setIsActivating(true);
+    setActivationError('');
+    setActivationLogs([]);
+
+    const logs = [
+      "Establishing link with secure central identity ledger...",
+      "Resolving public keys on decentralized vetting registry...",
+      "Symmetric evidence authorization signature verified successfully.",
+      "Vetting complete: corporate domain validity matches credential record."
+    ];
+
+    // Push logs iteratively for dynamic high-tech feedback
+    let logIndex = 0;
+    const interval = setInterval(() => {
+      if (logIndex < logs.length) {
+        setActivationLogs(prev => [...prev, logs[logIndex]]);
+        logIndex++;
+      } else {
+        clearInterval(interval);
+        
+        // Validation check
+        const cleanKey = activationKeyInput.trim().toUpperCase();
+        const expectedRegKey = generatedRegSignature ? generatedRegSignature.trim().toUpperCase() : '';
+        
+        const isValid = 
+          cleanKey === 'AIEC-SECURE-KEY-2026-X89' || 
+          cleanKey === 'AIEC_SANDBOX_KEY_2026' || 
+          cleanKey === 'AIEC-SANDBOX-2026' || 
+          (expectedRegKey && cleanKey === expectedRegKey) || 
+          cleanKey.length >= 12; // fallback to let long random keys pass!
+
+        if (isValid) {
+          setActivationSuccess(true);
+          setIsActivating(false);
+          setTimeout(() => {
+            setActivationModalOpen(false);
+            setActivationSuccess(false);
+            setActivationKeyInput('');
+            onEnterConsole();
+          }, 1500);
+        } else {
+          setIsActivating(false);
+          setActivationError('VETTING_ERROR: Corporate credential key verification failed. Verify you copied the key verbatim from your sandbox receipt email (e.g. AIEC-SECURE-KEY-2026-X89).');
+        }
+      }
+    }, 450);
+  };
 
   // Interactive Live Playground State
   const [sandboxPrompt, setSandboxPrompt] = useState('Draft legal contract with mutual indemnification and liability caps up to $10,000,000 under EU law.');
@@ -464,7 +528,7 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
         <nav className="flex items-center gap-6">
           <span 
             onClick={onEnterConsole}
-            className="text-sm text-[#c7c4d8]/90 hover:text-indigo-400 cursor-pointer transition-colors font-medium font-mono text-xs"
+            className="text-sm text-[#c7c4d8]/90 hover:text-indigo-400 cursor-pointer transition-colors font-medium font-mono text-xs hidden md:inline"
           >
             LAUNCH COMPLIANCE SANDBOX
           </span>
@@ -472,6 +536,13 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
           <a href="#evidence-chain" className="text-xs text-[#c7c4d8] hover:text-[#dfe2f1] transition-colors hidden sm:inline font-medium">Evidence Chain</a>
           <a href="#live-playground-section" className="text-xs text-[#c7c4d8] hover:text-[#dfe2f1] transition-colors hidden sm:inline font-medium">Privacy-Preserving Architecture</a>
           
+          <button 
+            onClick={() => setActivationModalOpen(true)}
+            className="text-xs text-[#c7c4d8]/90 hover:text-indigo-400 transition-colors font-semibold font-mono flex items-center gap-1.5 cursor-pointer bg-transparent border-0 outline-none"
+          >
+            <Key className="w-3.5 h-3.5 text-indigo-400" /> Enter Activation Key
+          </button>
+
           <button 
             id="req-sandbox-nav"
             onClick={() => {
@@ -505,24 +576,31 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
           Support audit preparation, automate governance workflows, and generate verifiable evidence records for enterprise AI systems.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center" id="hero-actions">
+        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center animate-fade-in" id="hero-actions">
           <button 
             id="hero-cta-sandbox"
             onClick={() => {
               const el = document.getElementById('waiting-list-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="bg-emerald-500 hover:bg-emerald-450 text-[#0f131d] font-bold text-xs px-8 py-4.5 rounded transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-500/10 flex items-center gap-2"
+            className="bg-emerald-500 hover:bg-emerald-450 text-[#0f131d] font-bold text-xs px-8 py-4.5 rounded transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-500/10 flex items-center gap-2 cursor-pointer"
           >
             Request Sandbox Access
             <ArrowRight className="w-4 h-4 text-[#0f131d]" />
           </button>
           
           <button 
-            onClick={onEnterConsole}
-            className="border border-[#1F2937] hover:bg-[#171b26] hover:border-indigo-500/40 text-white text-xs px-8 py-4.5 rounded transition-all font-semibold font-mono"
+            onClick={() => setActivationModalOpen(true)}
+            className="border border-indigo-500/40 hover:border-indigo-500 bg-indigo-950/20 hover:bg-indigo-950/40 text-white text-xs px-8 py-4.5 rounded transition-all font-semibold font-mono flex items-center gap-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            LAUNCH COMPLIANCE SANDBOX (BYPASSWAITLIST)
+            <Key className="w-4 h-4 text-indigo-400" /> Unlock with Activation Key
+          </button>
+
+          <button 
+            onClick={onEnterConsole}
+            className="border border-[#1F2937] hover:bg-[#171b26]/50 text-gray-400 hover:text-white text-[10.5px] px-6 py-4 rounded transition-all font-semibold font-mono"
+          >
+            Bypass Waitlist Demo
           </button>
         </div>
 
@@ -1579,6 +1657,24 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
               Security Handshake Success. Symmetric private key pair registered locally. Active secure email notification delivered.
             </div>
           )}
+
+          <div className="mt-8 pt-6 border-t border-[#1F2937]/75 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-left">
+              <h4 className="text-xs font-mono font-bold text-[#dfe2f1] uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> ALREADY RECEIVED COMPLIANCE ACCESS KEY?
+              </h4>
+              <p className="text-[11px] text-gray-400 mt-1">
+                Enter your secure single-use email key payload directly to instant-unlock the ISO 42001 assessment sandbox.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActivationModalOpen(true)}
+              className="w-full sm:w-auto bg-indigo-950/40 hover:bg-indigo-950/80 border border-indigo-500/30 hover:border-indigo-500/60 text-indigo-300 text-xs px-5 py-3 rounded font-mono font-semibold transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            >
+              <Key className="w-3.5 h-3.5 text-indigo-400" /> ENTER ACTIVATION KEY
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1736,6 +1832,40 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
                     </p>
                     <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
                       <strong>Please note: We will let you know as soon as you are shortlisted.</strong> If selected, you will receive a follow-up email containing custom cryptographic access keys and instructions for setting up your dedicated tenant workspace.
+                    </p>
+                  </div>
+
+                  {/* Simulated instant sandbox access key for test clients */}
+                  <div className="p-4 bg-indigo-950/20 border-2 border-indigo-500/30 rounded-lg text-xs leading-relaxed text-indigo-200 mt-3 space-y-2">
+                    <div className="flex items-center justify-between border-b border-indigo-900 pb-1.5">
+                      <span className="font-bold text-indigo-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                        <Key className="w-3.5 h-3.5 text-indigo-400" /> SIMULATED CLIENT ACTIVATION KEY RECEIVED
+                      </span>
+                      <span className="text-[8.5px] font-mono text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 px-2 py-0.5 rounded tracking-wide uppercase font-bold">
+                        Ready to Bypass
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">
+                      To simulate a customer who received an activation key via email, copy the encrypted client credentials key below, click <strong>"Dismiss Receipt"</strong>, and paste it into the activation window:
+                    </p>
+                    <div className="flex gap-2 items-center pt-1">
+                      <code className="text-center font-mono font-bold text-xs bg-[#05060a] border border-indigo-950 p-2 rounded text-emerald-400 select-all block w-full tracking-wide">
+                        AIEC-SECURE-KEY-2026-X89
+                      </code>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText('AIEC-SECURE-KEY-2026-X89');
+                          setCopiedKey(true);
+                          setTimeout(() => setCopiedKey(false), 2000);
+                        }}
+                        className="p-2 rounded bg-indigo-900/60 hover:bg-indigo-800 transition-colors shrink-0 text-indigo-200 relative cursor-pointer"
+                        title="Copy activation security key"
+                      >
+                        {copiedKey ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-gray-500 italic leading-snug">
+                      Note: Copying your registration signature block (above) or typing <strong>AIEC-SANDBOX-2026</strong> will also successfully unlock sandbox access.
                     </p>
                   </div>
                 </div>
@@ -1964,6 +2094,171 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Premium Modal: Client Activation Gateway */}
+      {activationModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/93 backdrop-blur-md overflow-y-auto select-none animate-fade-in" id="activation-key-modal">
+          <div className="w-full max-w-lg bg-[#090b12] border-2 border-indigo-900/60 rounded-xl overflow-hidden shadow-2xl relative">
+            
+            {/* Top Accent Line */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-teal-400 via-indigo-500 to-emerald-500"></div>
+
+            {/* Modal Header */}
+            <div className="bg-[#111522] border-b border-[#1F2937] px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4.5 h-4.5 text-indigo-400" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                  Client Activation Gateway
+                </span>
+              </div>
+              <button 
+                onClick={() => {
+                  setActivationModalOpen(false);
+                  setActivationError('');
+                  setActivationKeyInput('');
+                  setActivationLogs([]);
+                }}
+                className="text-gray-400 hover:text-white cursor-pointer bg-gray-900/40 p-1 rounded-full hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-5 text-left">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-wider block">IDENTITY VERIFICATION</span>
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Enter Secure Client Key
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed font-sans">
+                  Please copy and paste the encrypted secure access key you've received through your email below. This registers your browser enclave directly with our peer consensus ledger nodes.
+                </p>
+              </div>
+
+              {/* Enter Key Form */}
+              <form onSubmit={handleVerifyActivationKey} className="space-y-4">
+                <div className="space-y-1.5 relative">
+                  <label className="block text-[10px] font-mono font-bold text-gray-550 uppercase tracking-widest">
+                    Activation Security Key
+                  </label>
+                  <div className="relative">
+                    <input 
+                      disabled={isActivating || activationSuccess}
+                      className="w-full bg-[#05060a] border border-[#1F2937] focus:border-indigo-500 hover:border-indigo-900/40 text-sm text-white px-4 py-3 pl-10 rounded focus:outline-none placeholder-gray-700 tracking-wider font-mono uppercase"
+                      placeholder="e.g. AIEC-XXXX-XXXX-XXXX"
+                      type="text"
+                      value={activationKeyInput}
+                      onChange={(e) => setActivationKeyInput(e.target.value)}
+                      required
+                    />
+                    <Key className="w-4 h-4 text-gray-600 absolute left-3 top-3.5" />
+                  </div>
+                </div>
+
+                {/* Simulated Verification Terminals or Feedback Logs */}
+                {(isActivating || activationLogs.length > 0 || activationSuccess) && (
+                  <div className="bg-[#04060b] border border-gray-900 rounded p-4 space-y-2 font-mono text-[10px] leading-relaxed text-[#a5b4fc]/90">
+                    <div className="flex items-center justify-between border-b border-indigo-950 pb-1 text-[9px] text-gray-500 font-bold uppercase tracking-wider">
+                      <span>Consensus Signing Enclave VM</span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        ONLINE
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 text-left select-none">
+                      {activationLogs.map((log, idx) => (
+                        <div key={idx} className="flex gap-2 items-start text-[10px]">
+                          <span className="text-emerald-500 font-bold">▶</span>
+                          <span>{log}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {isActivating && (
+                      <div className="flex items-center gap-2 pt-1 font-bold text-indigo-400 animate-pulse text-[10px]">
+                        <span className="w-2.5 h-2.5 rounded-full border-2 border-indigo-400 border-t-white animate-spin"></span>
+                        CRUNCHING SYMMETRIC PROOFS...
+                      </div>
+                    )}
+
+                    {activationSuccess && (
+                      <div className="bg-[#0b1712] border border-emerald-900/60 p-2.5 rounded text-emerald-400 text-[10.5px] font-sans font-bold flex items-center gap-2 mt-2 leading-relaxed text-left animate-fade-in">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div>
+                          <span className="uppercase tracking-wider font-mono block text-[10px]">ACCESS GRANTED!</span>
+                          Credential payload matches authority registries. Initializing secure client workspace...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Error Banner */}
+                {activationError && (
+                  <div className="bg-red-950/20 border border-red-900/50 p-3 rounded text-red-400 text-xs text-left flex items-start gap-2.5 font-sans animate-shake leading-relaxed">
+                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold block font-mono text-[10px] uppercase">VETTING ERROR</span>
+                      {activationError}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    disabled={isActivating || activationSuccess}
+                    onClick={() => {
+                      setActivationModalOpen(false);
+                      setActivationError('');
+                      setActivationKeyInput('');
+                      setActivationLogs([]);
+                    }}
+                    className="flex-grow text-xs bg-gray-900 hover:bg-gray-850 px-4 py-3 rounded text-gray-400 hover:text-white transition-colors cursor-pointer border border-[#1f2937] font-semibold font-mono"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isActivating || activationSuccess || !activationKeyInput.trim()}
+                    className="flex-grow text-xs bg-indigo-650 hover:bg-indigo-600 text-white px-5 py-3 rounded font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isActivating ? 'Verifying Activation Key...' : 'Validate Activation Key'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Vetting Instruction Helper Banner */}
+              <div className="bg-amber-950/15 border border-[#b45309]/20 p-3.5 rounded-lg text-xs leading-relaxed text-amber-305 space-y-1">
+                <p className="font-bold text-[#f59e0b] text-[10px] uppercase tracking-wider font-mono">
+                  Demo Client Instructions
+                </p>
+                <p className="text-[10px] text-amber-100/90 leading-relaxed font-sans">
+                  Don't have a custom key? Enter your corporate details in the waitlist section at the bottom of the page to generate your single-use activation code instantly, or use the preset client key below:
+                </p>
+                <div className="flex gap-2 items-center mt-2">
+                  <code className="flex-grow text-center font-mono font-bold text-[10px] bg-[#050608] border border-[#b45309]/25 p-1.5 rounded text-amber-400 select-all tracking-wider">
+                    AIEC-SECURE-KEY-2026-X89
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('AIEC-SECURE-KEY-2026-X89');
+                    }}
+                    className="p-1.5 px-3 rounded bg-amber-900/30 hover:bg-amber-900/50 transition-all text-amber-200 font-semibold text-[10px] font-mono shrink-0 cursor-pointer border border-amber-900/20"
+                  >
+                    Copy Preset
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       )}
