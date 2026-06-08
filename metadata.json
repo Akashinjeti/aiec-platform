@@ -1,0 +1,6 @@
+{
+  "name": "AIEC Audit Precision System",
+  "description": "Enterprise-grade ISO 42001 compliance platform featuring privacy-preserving local signing, verifiable audit trails, and automated governance evidence records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
