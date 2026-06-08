@@ -242,6 +242,8 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
 
   // Premium email simulator state
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [activeEmailTab, setActiveEmailTab] = useState<'inbox' | 'vetting' | 'receipts'>('inbox');
+  const [randomQueueNumber, setRandomQueueNumber] = useState<number>(() => Math.floor(Math.random() * 850) + 115);
   const [generatedRegSignature, setGeneratedRegSignature] = useState('');
   const [copiedSig, setCopiedSig] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
@@ -487,9 +489,9 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
         selected_pains: selectedPains
       },
       sandbox_status_ledger: {
-        queue_rank: 142,
+        queue_rank: randomQueueNumber,
         shortlist_vetted: false,
-        message: "Pending shortlist selection. AIEC sandbox access is strictly restricted to vetted compliance partners. You will receive a follow-up email once shortlisted.",
+        message: `Pending shortlist selection. AIEC sandbox access is strictly restricted to vetted compliance partners. Once your queue status is completed, you will receive an email with your secure activation key.`,
         cryptographic: {
           hash_chain_identifier: "AIEC_REG_HASH_" + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('').toUpperCase(),
           ed25519_signature: generatedRegSignature
@@ -1689,22 +1691,43 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
                 <div className="space-y-2">
                   <p className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2">Folders</p>
                   <nav className="space-y-1">
-                    <button className="w-full flex items-center justify-between text-left text-xs px-2.5 py-1.5 rounded bg-[#111522] text-indigo-300 font-medium">
+                    <button 
+                      onClick={() => setActiveEmailTab('inbox')}
+                      className={`w-full flex items-center justify-between text-left text-xs px-2.5 py-1.5 rounded transition-all cursor-pointer ${
+                        activeEmailTab === 'inbox' 
+                          ? 'bg-[#111522] text-indigo-300 font-medium' 
+                          : 'text-gray-400 hover:text-gray-250'
+                      }`}
+                    >
                       <span className="flex items-center gap-2">
                         <Inbox className="w-3.5 h-3.5 text-indigo-400" />
                         Inbox (New)
                       </span>
                       <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
                     </button>
-                    <button className="w-full flex items-center text-left text-xs px-2.5 py-2 rounded text-gray-600 hover:text-gray-400 transition-colors">
+                    <button 
+                      onClick={() => setActiveEmailTab('vetting')}
+                      className={`w-full flex items-center text-left text-xs px-2.5 py-2 rounded transition-all cursor-pointer ${
+                        activeEmailTab === 'vetting' 
+                          ? 'bg-[#111522] text-indigo-300 font-medium' 
+                          : 'text-gray-400 hover:text-gray-250'
+                      }`}
+                    >
                       <span className="flex items-center gap-2">
-                        <UserCheck className="w-3.5 h-3.5" />
+                        <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
                         Shortlist Vetting
                       </span>
                     </button>
-                    <button className="w-full flex items-center text-left text-xs px-2.5 py-2 rounded text-gray-600 hover:text-gray-400 transition-colors">
+                    <button 
+                      onClick={() => setActiveEmailTab('receipts')}
+                      className={`w-full flex items-center text-left text-xs px-2.5 py-2 rounded transition-all cursor-pointer ${
+                        activeEmailTab === 'receipts' 
+                          ? 'bg-[#111522] text-indigo-300 font-medium' 
+                          : 'text-gray-400 hover:text-gray-250'
+                      }`}
+                    >
                       <span className="flex items-center gap-2">
-                        <Lock className="w-3.5 h-3.5" />
+                        <Lock className="w-3.5 h-3.5 text-indigo-400" />
                         Ledger Receipts
                       </span>
                     </button>
@@ -1717,7 +1740,7 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
                 <div>
                   <span className="text-[9px] font-bold font-mono text-indigo-400 uppercase tracking-widest block mb-0.5">Assigned Queue Rank</span>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-bold font-mono text-white tracking-tight">#142</span>
+                    <span className="text-3xl font-bold font-mono text-white tracking-tight">#{randomQueueNumber}</span>
                     <span className="text-[10px] text-gray-400 font-mono">Sandbox Batch</span>
                   </div>
                 </div>
@@ -1730,7 +1753,9 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
                     Vetting Status
                   </span>
                   <p className="text-[10.5px] text-gray-400 leading-normal font-sans">
-                    Pending compliance verification by corporate review committee.
+                    {activeEmailTab === 'vetting' 
+                      ? 'Running real-time corporate domain eligibility & standard criteria vetting checks.' 
+                      : 'Pending compliance verification by corporate review committee.'}
                   </p>
                 </div>
               </div>
@@ -1763,106 +1788,244 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
                 <div className="pt-2">
                   <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-start sm:items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-1 sm:mt-0" />
-                    AIEC Sandbox Program: Application Registered [Queue Position #142]
+                    {activeEmailTab === 'inbox' && `AIEC Sandbox Program: Application Registered [Queue Position #${randomQueueNumber}]`}
+                    {activeEmailTab === 'vetting' && `Shortlist Vetting Status: VET_STAGE_3_ANALYSIS [Queue Position #${randomQueueNumber}]`}
+                    {activeEmailTab === 'receipts' && `Immutable Distributed Proof Receipt: AIEC_TX_#${randomQueueNumber}_SUCCESS`}
                   </h2>
                 </div>
               </div>
 
               {/* Rich Body Text */}
               <div className="py-5 space-y-4 text-xs sm:text-sm text-gray-300 leading-relaxed overflow-y-auto">
-                <p>
-                  Dear <strong className="text-white">{company || 'Enterprise Leader'}</strong> Representative,
-                </p>
+                {activeEmailTab === 'inbox' && (
+                  <>
+                    <p>
+                      Dear <strong className="text-white">{company || 'Enterprise Leader'}</strong> Representative,
+                    </p>
 
-                <p>
-                  This official message confirms that we have successfully received and registered your application to participate in the exclusive <strong className="text-white">AIEC Private Sandbox Program</strong>.
-                </p>
+                    <p>
+                      This official message confirms that we have successfully received and registered your application to participate in the exclusive <strong className="text-white">AIEC Private Sandbox Program</strong>.
+                    </p>
 
-                <div className="p-4 rounded-lg bg-[#07090f] border border-indigo-950/80 space-y-3">
-                  <div className="flex items-center justify-between border-b border-indigo-950/50 pb-2">
-                    <span className="font-mono text-[9px] font-bold text-indigo-400 tracking-wider">SECURE LEDGER HANDSHAKE RECORD</span>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/10 border border-emerald-900/30 px-2 py-0.5 rounded">✓ INTEGRITY VERIFIED</span>
-                  </div>
-                  
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">ORGANIZATION ADDRESS:</span> <span className="text-white font-mono text-[11px] font-medium">{email}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">CORPORATION NAME:</span> <span className="text-white font-sans text-xs font-semibold">{company || 'Vetted Enterprise'}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">COMPANY SIZE:</span> <span className="text-indigo-300 font-sans text-xs">{companySize ? `${companySize} employees` : 'N/A'}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">ACTIVE AI USERS:</span> <span className="text-indigo-300 font-sans text-xs">{aiUsage ? `${aiUsage} users` : 'N/A'}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">CHALLENGE URGENCY:</span> <span className="text-amber-400 font-sans text-xs font-semibold">{urgency || 'N/A'}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">TARGET MODELS:</span> <span className="text-indigo-300 font-mono text-xs">{aiModels}</span></div>
-                    <div className="flex justify-between items-center font-sans py-0.5"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">COMPLIANCE TARGET:</span> <span className="text-indigo-300 font-sans text-xs">{complianceTarget}</span></div>
-                  </div>
+                    <div className="p-4 rounded-lg bg-[#07090f] border border-indigo-950/80 space-y-3">
+                      <div className="flex items-center justify-between border-b border-indigo-950/50 pb-2">
+                        <span className="font-mono text-[9px] font-bold text-indigo-400 tracking-wider">SECURE LEDGER HANDSHAKE RECORD</span>
+                        <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/10 border border-emerald-900/30 px-2 py-0.5 rounded">✓ INTEGRITY VERIFIED</span>
+                      </div>
+                      
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">ORGANIZATION ADDRESS:</span> <span className="text-white font-mono text-[11px] font-medium">{email}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">CORPORATION NAME:</span> <span className="text-white font-sans text-xs font-semibold">{company || 'Vetted Enterprise'}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">COMPANY SIZE:</span> <span className="text-indigo-300 font-sans text-xs">{companySize ? `${companySize} employees` : 'N/A'}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">ACTIVE AI USERS:</span> <span className="text-indigo-300 font-sans text-xs">{aiUsage ? `${aiUsage} users` : 'N/A'}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">CHALLENGE URGENCY:</span> <span className="text-amber-400 font-sans text-xs font-semibold">{urgency || 'N/A'}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5 border-b border-indigo-950/20"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">TARGET MODELS:</span> <span className="text-indigo-300 font-mono text-xs">{aiModels}</span></div>
+                        <div className="flex justify-between items-center font-sans py-0.5"><span className="text-gray-500 font-mono text-[8.5px] tracking-wide">COMPLIANCE TARGET:</span> <span className="text-indigo-300 font-sans text-xs">{complianceTarget}</span></div>
+                      </div>
 
-                  <div className="pt-2 border-t border-indigo-950/50 space-y-1.5">
-                    <span className="text-[9px] font-bold font-mono text-gray-500 block">LOCAL CRYPTO SIGNATURE KEY BLOCK</span>
-                    <div className="flex gap-2 items-center">
-                      <code className="bg-[#050608] border border-gray-900 text-indigo-400 p-2 rounded text-[10px] select-all break-all block h-10 w-full font-mono text-left overflow-y-auto">
-                        {generatedRegSignature || 'LOADING_SIGNATURE_SEQUENCE_HASH_KEY'}
-                      </code>
-                      <button
-                        onClick={() => copyToClipboard(generatedRegSignature)}
-                        className="p-2 rounded bg-indigo-950/70 hover:bg-indigo-900/60 transition-colors shrink-0 text-indigo-300 relative cursor-pointer"
-                        title="Copy cryptographic signature block"
-                      >
-                        {copiedSig ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      </button>
+                      <div className="pt-2 border-t border-indigo-950/50 space-y-1.5">
+                        <span className="text-[9px] font-bold font-mono text-gray-500 block">LOCAL CRYPTO SIGNATURE KEY BLOCK</span>
+                        <div className="flex gap-2 items-center">
+                          <code className="bg-[#050608] border border-gray-900 text-indigo-400 p-2 rounded text-[10px] select-all break-all block h-10 w-full font-mono text-left overflow-y-auto">
+                            {generatedRegSignature || 'LOADING_SIGNATURE_SEQUENCE_HASH_KEY'}
+                          </code>
+                          <button
+                            onClick={() => copyToClipboard(generatedRegSignature)}
+                            className="p-2 rounded bg-indigo-955 hover:bg-slate-900 transition-colors shrink-0 text-indigo-300 relative cursor-pointer"
+                            title="Copy cryptographic signature block"
+                          >
+                            {copiedSig ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="space-y-2 pt-2 border-t border-gray-900/60">
-                  <h3 className="font-bold text-white text-xs uppercase tracking-wide">Vetted Shortlist Allocation Vows:</h3>
-                  <p className="text-gray-400 leading-relaxed text-xs">
-                    Because our physical cryptographic security hardware (HSM) limits sandbox tenants, access is strictly prioritized for high-intent corporate partners.
-                  </p>
-                  
-                  <div className="p-4 bg-amber-950/10 border border-[#b45309]/30 rounded-lg text-xs leading-relaxed text-amber-300 space-y-1">
-                    <p className="font-bold text-[#f59e0b] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-[#f59e0b]" /> Queue Notice Guidelines
-                    </p>
-                    <p className="text-xs text-amber-100/90 leading-relaxed">
-                      Your application is placed in queue position <strong className="text-white text-xs font-mono font-bold">#142</strong>. Our regulatory team is evaluating your corporate domain security records. 
-                    </p>
-                    <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
-                      <strong>Please note: We will let you know as soon as you are shortlisted.</strong> If selected, you will receive a follow-up email containing custom cryptographic access keys and instructions for setting up your dedicated tenant workspace.
-                    </p>
-                  </div>
+                    <div className="space-y-2 pt-2 border-t border-gray-900/60">
+                      <h3 className="font-bold text-white text-xs uppercase tracking-wide">Vetted Shortlist Allocation Vows:</h3>
+                      <p className="text-gray-400 leading-relaxed text-xs">
+                        Because our physical cryptographic security hardware (HSM) limits sandbox tenants, access is strictly prioritized for high-intent corporate partners.
+                      </p>
+                      
+                      <div className="p-4 bg-amber-950/10 border border-[#b45309]/30 rounded-lg text-xs leading-relaxed text-amber-300 space-y-1">
+                        <p className="font-bold text-[#f59e0b] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                          <AlertCircle className="w-4 h-4 text-[#f59e0b]" /> Queue Notice Guidelines
+                        </p>
+                        <p className="text-xs text-amber-100/90 leading-relaxed">
+                          Your application is placed in queue position <strong className="text-white text-xs font-mono font-bold">#{randomQueueNumber}</strong>. Our regulatory team is evaluating your corporate domain security records. 
+                        </p>
+                        <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
+                          <strong>Please note:</strong> once your queue status is completed you will receive an email with activation key.
+                        </p>
+                      </div>
 
-                  {/* Simulated instant sandbox access key for test clients */}
-                  <div className="p-4 bg-indigo-950/20 border-2 border-indigo-500/30 rounded-lg text-xs leading-relaxed text-indigo-200 mt-3 space-y-2">
-                    <div className="flex items-center justify-between border-b border-indigo-900 pb-1.5">
-                      <span className="font-bold text-indigo-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                        <Key className="w-3.5 h-3.5 text-indigo-400" /> SIMULATED CLIENT ACTIVATION KEY RECEIVED
-                      </span>
-                      <span className="text-[8.5px] font-mono text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 px-2 py-0.5 rounded tracking-wide uppercase font-bold">
-                        Ready to Bypass
-                      </span>
+                      {/* Simulated instant sandbox access key for test clients */}
+                      <div className="p-4 bg-indigo-950/20 border-2 border-indigo-500/30 rounded-lg text-xs leading-relaxed text-indigo-200 mt-3 space-y-2">
+                        <div className="flex items-center justify-between border-b border-indigo-900 pb-1.5">
+                          <span className="font-bold text-indigo-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                            <Key className="w-3.5 h-3.5 text-indigo-400" /> SIMULATED CLIENT ACTIVATION KEY RECEIVED
+                          </span>
+                          <span className="text-[8.5px] font-mono text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 px-2 py-0.5 rounded tracking-wide uppercase font-bold">
+                            Ready to Bypass
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-300 leading-relaxed">
+                          To simulate a customer who received an activation key via email, copy the encrypted client credentials key below, click <strong>"Dismiss Receipt"</strong>, and paste it into the activation window:
+                        </p>
+                        <div className="flex gap-2 items-center pt-1">
+                          <code className="text-center font-mono font-bold text-xs bg-[#05060a] border border-indigo-950 p-2 rounded text-emerald-400 select-all block w-full tracking-wide">
+                            AIEC-SECURE-KEY-2026-X89
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText('AIEC-SECURE-KEY-2026-X89');
+                              setCopiedKey(true);
+                              setTimeout(() => setCopiedKey(false), 2000);
+                            }}
+                            className="p-2 rounded bg-indigo-900/60 hover:bg-indigo-800 transition-colors shrink-0 text-indigo-200 relative cursor-pointer"
+                            title="Copy activation security key"
+                          >
+                            {copiedKey ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-gray-500 italic leading-snug">
+                          Note: You can unlock sandbox access immediately by using this key.
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">
-                      To simulate a customer who received an activation key via email, copy the encrypted client credentials key below, click <strong>"Dismiss Receipt"</strong>, and paste it into the activation window:
+                  </>
+                )}
+
+                {activeEmailTab === 'vetting' && (
+                  <>
+                    <p>
+                      Dear <strong className="text-white">{company || 'Enterprise Leader'}</strong> GRC Team,
                     </p>
-                    <div className="flex gap-2 items-center pt-1">
-                      <code className="text-center font-mono font-bold text-xs bg-[#05060a] border border-indigo-950 p-2 rounded text-emerald-400 select-all block w-full tracking-wide">
-                        AIEC-SECURE-KEY-2026-X89
-                      </code>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText('AIEC-SECURE-KEY-2026-X89');
-                          setCopiedKey(true);
-                          setTimeout(() => setCopiedKey(false), 2000);
-                        }}
-                        className="p-2 rounded bg-indigo-900/60 hover:bg-indigo-800 transition-colors shrink-0 text-indigo-200 relative cursor-pointer"
-                        title="Copy activation security key"
-                      >
-                        {copiedKey ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-                      </button>
+
+                    <p>
+                      Our assessment ledger is currently validating your organization's compliance posture. Here is the real-time status of your compliance screening vetting sequence:
+                    </p>
+
+                    <div className="space-y-4 pt-2">
+                      <div className="relative border-l-2 border-indigo-950 pl-6 space-y-6 text-left">
+                        
+                        {/* Step 1 */}
+                        <div className="relative">
+                          <div className="absolute -left-[31px] rounded-full bg-emerald-500 w-2.5 h-2.5 border-2 border-[#090b12]" />
+                          <h4 className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                            STEP 1: CORPORATE DOMAIN VERIFICATION
+                            <span className="text-[9px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase">COMPLETED</span>
+                          </h4>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Domain checks performed on <span className="text-[#a5b4fc] font-mono">{email}</span>. Validated against registered global business entities.
+                          </p>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="relative">
+                          <div className="absolute -left-[31px] rounded-full bg-emerald-500 w-2.5 h-2.5 border-2 border-[#090b12]" />
+                          <h4 className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                            STEP 2: STANDARDS CONFORMITY ALIGNMENT
+                            <span className="text-[9px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase">COMPLETED</span>
+                          </h4>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Mapped evaluation profile to standard framework targets: <span className="text-[#a5b4fc] font-mono">{complianceTarget || "ISO/IEC 42001:2023"}</span>.
+                          </p>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="relative">
+                          <div className="absolute -left-[31px] rounded-full bg-indigo-500 w-2.5 h-2.5 border-2 border-[#090b12] animate-pulse" />
+                          <h4 className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                            STEP 3: COMPLIANCE OFFICER SCREENING
+                            <span className="text-[9px] bg-indigo-950 text-indigo-400 px-2 py-0.5 rounded font-bold uppercase animate-pulse">ACTIVE SCREENING</span>
+                          </h4>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Evaluating active sandbox slot availability. Corporate requirements require review matching {companySize || 'designated'} profile density ({aiUsage || 'specified'} AI users).
+                          </p>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="relative">
+                          <div className="absolute -left-[31px] rounded-full bg-gray-700 w-2.5 h-2.5 border-2 border-[#090b12]" />
+                          <h4 className="text-xs font-mono font-bold text-gray-500 flex items-center gap-2">
+                            STEP 4: HARDWARE ENCLAVE PROVISIONING
+                            <span className="text-[9px] bg-gray-900 text-gray-500 px-2 py-0.5 rounded font-bold uppercase">PENDING ACTIVATION</span>
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Dedicated HSM instance partition creation pending sandbox authority release signature.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-amber-950/10 border border-[#b45309]/30 rounded-lg text-xs leading-relaxed text-amber-300 space-y-1 mt-6 text-left">
+                        <p className="font-bold text-[#f59e0b] text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                          <AlertCircle className="w-4 h-4 text-[#f59e0b]" /> Vetting Notice Guidelines
+                        </p>
+                        <p className="text-xs text-amber-100/90 leading-relaxed">
+                          Your queue status is currently being evaluated for high priority corporate slots.
+                        </p>
+                        <p className="text-xs text-amber-300/95 font-bold mt-1 leading-relaxed">
+                          Please note: once your queue status is completed you will receive an email with activation key.
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-gray-500 italic leading-snug">
-                      Note: Copying your registration signature block (above) or typing <strong>AIEC-SANDBOX-2026</strong> will also successfully unlock sandbox access.
+                  </>
+                )}
+
+                {activeEmailTab === 'receipts' && (
+                  <>
+                    <p>
+                      Dear <strong className="text-white">{company || 'Enterprise Leader'}</strong> Representative,
                     </p>
-                  </div>
-                </div>
+
+                    <p>
+                      Below is the verified immutable ledger record of your GRC sandbox slot registration. This evidence record is signed and locked against structural tampering.
+                    </p>
+
+                    <div className="p-4 rounded-lg bg-[#07090f] border border-indigo-950/80 space-y-3 font-mono text-xs text-left">
+                      <div className="flex items-center justify-between border-b border-indigo-950/50 pb-2">
+                        <span className="font-mono text-[9px] font-bold text-emerald-400 tracking-wider">IMMUTABLE BLOCK TRANSACTION PROOF</span>
+                        <span className="text-[9px] font-bold text-indigo-400 bg-indigo-950/10 border border-indigo-900/40 px-2 py-0.5 rounded">✓ CHAIN RECORD VALID_HEIGHT_#{(48201 + randomQueueNumber)}</span>
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between py-1 border-b border-indigo-955">
+                          <span className="text-gray-500 text-[10px]">LEDGER_ID:</span>
+                          <span className="text-white font-medium text-[11px]">AIEC-TX-#{randomQueueNumber}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-indigo-955">
+                          <span className="text-gray-500 text-[10px]">MERKLE_ROOT:</span>
+                          <span className="text-indigo-455 font-medium text-[10.5px]">8ca01948ba01b4eef22f9810acbef83901bca04a919283fdecdbaab802421bf2</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-indigo-955">
+                          <span className="text-gray-500 text-[10px]">VERIFIED_OBJECTS:</span>
+                          <span className="text-white text-[11px]">["ISO-42001-Conformity-Profile", "Domain-Handshake"]</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-indigo-955">
+                          <span className="text-gray-500 text-[10px]">REGISTRATION_SIGNATURE:</span>
+                          <span className="text-indigo-300 text-[10.5px] break-all max-w-[280px] text-right">{generatedRegSignature || "UNAVAILABLE"}</span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-gray-500 text-[10px]">VETTING_STATUS_KEY:</span>
+                          <span className="text-amber-500 font-semibold text-[11px]">STATUS_HOLDING_QUEUE</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-amber-950/10 border border-[#b45309]/30 rounded-lg text-xs leading-relaxed text-amber-300 space-y-1 mt-6 text-left">
+                      <p className="font-bold text-[#f59e0b] text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                        <AlertCircle className="w-4 h-4 text-[#f59e0b]" /> Ledger Verification
+                      </p>
+                      <p className="text-xs text-amber-100/90 leading-relaxed font-sans">
+                        Your proof of registration is permanently locked into block height.
+                      </p>
+                      <p className="text-xs text-amber-300/95 font-bold mt-1 leading-relaxed font-sans">
+                        Please note: once your queue status is completed you will receive an email with activation key.
+                      </p>
+                    </div>
+                  </>
+                )}
 
                 <p className="text-[11px] text-gray-500 italic mt-3 pt-3 border-t border-gray-900/60 leading-relaxed">
                   Thank you for prioritizing privacy-preserving, mathematically verifiable AI governance.
