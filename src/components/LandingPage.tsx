@@ -283,14 +283,8 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
         
         // Validation check
         const cleanKey = activationKeyInput.trim().toUpperCase();
-        const expectedRegKey = generatedRegSignature ? generatedRegSignature.trim().toUpperCase() : '';
         
-        const isValid = 
-          cleanKey === 'AIEC-SECURE-KEY-2026-X89' || 
-          cleanKey === 'AIEC_SANDBOX_KEY_2026' || 
-          cleanKey === 'AIEC-SANDBOX-2026' || 
-          (expectedRegKey && cleanKey === expectedRegKey) || 
-          cleanKey.length >= 12; // fallback to let long random keys pass!
+        const isValid = cleanKey === 'AIEC-SECURE-KEY-2026-X89';
 
         if (isValid) {
           setActivationSuccess(true);
@@ -303,7 +297,7 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
           }, 1500);
         } else {
           setIsActivating(false);
-          setActivationError('VETTING_ERROR: Corporate credential key verification failed. Verify you copied the key verbatim from your sandbox receipt email (e.g. AIEC-SECURE-KEY-2026-X89).');
+          setActivationError('Invalid key. Contact administrator.');
         }
       }
     }, 450);
