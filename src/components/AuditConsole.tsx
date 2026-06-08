@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Shield, Lock, CheckCircle2, Search, Download, ExternalLink, Code, Database, 
   FileText, Clock, Key, AlertCircle, PlusCircle, ArrowLeft, RefreshCw, X, Copy,
-  Globe, Activity, Circle, CheckSquare, Sparkles, Server, Check
+  Globe, Activity, Circle, CheckSquare, Sparkles, Server, Check, TrendingUp, PieChart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DocumentAuditTrail, DocumentState, TimelineNode } from '../types';
@@ -61,6 +61,7 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
   });
 
   const [selectedRiskCategory, setSelectedRiskCategory] = useState<'governance' | 'toxicity' | 'hallucination' | 'leakage' | null>(null);
+  const [hoveredSegment, setHoveredSegment] = useState<'none' | 'production' | 'pilot' | 'development'>('none');
 
   // $100M FOUNDER SAAS ADVANCEMENTS
   const [simScrubPii, setSimScrubPii] = useState(true);
@@ -514,31 +515,127 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
       </header>
 
       {/* Top Ledger Integrity Banner */}
-      <section className="bg-[#111522]/40 border-b border-[#1F2937] px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
-        <div>
-          <span className="text-gray-500 font-mono text-[10px] block uppercase tracking-wider">Assets Governed</span>
-          <span className="text-white font-sans text-sm font-semibold flex items-center gap-1.5 mt-1 animate-fadeIn">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 inline" /> {2481 + auditTrails.length} Registered
-          </span>
+      <section className="bg-[#0b0e17] border-b border-[#1F2937]/85 px-6 py-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+        {/* Card 1: Assets Governed */}
+        <div className="bg-[#111522]/45 border border-[#1b2131]/80 rounded-xl p-4 flex flex-col justify-between hover:border-indigo-500/40 hover:bg-[#111522]/60 transition-all shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-550 font-mono text-[10px] block uppercase tracking-wider font-semibold">Assets Governed</span>
+            <div className="p-1 rounded bg-[#3b82f6]/10 text-indigo-400 group-hover:bg-[#3b82f6]/20 transition-all">
+              <Database className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-white font-sans text-xl sm:text-2xl font-bold tracking-tight">{2481 + auditTrails.length}</span>
+            <span className="text-[10px] font-mono text-emerald-450 flex items-center gap-0.5 font-bold">
+              <TrendingUp className="w-3 h-3 text-emerald-400 shrink-0" /> +18.2%
+            </span>
+          </div>
+          <span className="text-[9.5px] text-gray-500 font-mono mt-0.5">active immutable logs</span>
+          
+          {/* Sparkline Line Curve */}
+          <div className="h-8 mt-3 -mx-4 -mb-4 relative overflow-hidden">
+            <svg className="w-full h-full animate-fadeIn" viewBox="0 0 160 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradient-blue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d="M 0 35 C 20 28, 40 32, 60 15 C 80 20, 100 8, 120 18 C 140 10, 150 5, 160 3 L 160 40 L 0 40 Z" fill="url(#gradient-blue)" />
+              <path d="M 0 35 C 20 28, 40 32, 60 15 C 80 20, 100 8, 120 18 C 140 10, 150 5, 160 3" fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-500 font-mono text-[10px] block uppercase tracking-wider">Human Approvals</span>
-          <span className="text-[#dfe2f1] font-mono text-xs font-semibold block mt-1">
-            1,204 Signatures
-          </span>
+
+        {/* Card 2: Human Approvals */}
+        <div className="bg-[#111522]/45 border border-[#1b2131]/80 rounded-xl p-4 flex flex-col justify-between hover:border-purple-500/40 hover:bg-[#111522]/60 transition-all shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-550 font-mono text-[10px] block uppercase tracking-wider font-semibold">Human Approvals</span>
+            <div className="p-1 rounded bg-[#a855f7]/10 text-purple-400 group-hover:bg-[#a855f7]/20 transition-all">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-white font-sans text-xl sm:text-2xl font-bold tracking-tight">1,204</span>
+            <span className="text-[10px] font-mono text-emerald-450 flex items-center gap-0.5 font-bold">
+              <TrendingUp className="w-3 h-3 text-emerald-400 shrink-0" /> +24.7%
+            </span>
+          </div>
+          <span className="text-[9.5px] text-gray-500 font-mono mt-0.5">verified cryptographic seals</span>
+          
+          {/* Sparkline Line Curve */}
+          <div className="h-8 mt-3 -mx-4 -mb-4 relative overflow-hidden">
+            <svg className="w-full h-full animate-fadeIn" viewBox="0 0 160 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradient-purple" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a855f7" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#a855f7" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d="M 0 32 C 15 35, 35 22, 55 28 C 75 12, 95 18, 115 5 C 135 15, 145 10, 160 8 L 160 40 L 0 40 Z" fill="url(#gradient-purple)" />
+              <path d="M 0 32 C 15 35, 35 22, 55 28 C 75 12, 95 18, 115 5 C 135 15, 145 10, 160 8" fill="none" stroke="#c084fc" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-500 font-mono text-[10px] block uppercase tracking-wider">Compliance Packages</span>
-          <span className="text-[#dfe2f1] font-mono text-xs font-semibold block mt-1">
-            317 Sealed Bundles
-          </span>
+
+        {/* Card 3: Compliance Packages */}
+        <div className="bg-[#111522]/45 border border-[#1b2131]/80 rounded-xl p-4 flex flex-col justify-between hover:border-amber-500/40 hover:bg-[#111522]/60 transition-all shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-550 font-mono text-[10px] block uppercase tracking-wider font-semibold">Compliance Packages</span>
+            <div className="p-1 rounded bg-[#f59e0b]/10 text-amber-400 group-hover:bg-[#f59e0b]/20 transition-all">
+              <FileText className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-white font-sans text-xl sm:text-2xl font-bold tracking-tight">317</span>
+            <span className="text-[10px] font-mono text-emerald-450 flex items-center gap-0.5 font-bold">
+              <TrendingUp className="w-3 h-3 text-emerald-400 shrink-0" /> +14.3%
+            </span>
+          </div>
+          <span className="text-[9.5px] text-gray-500 font-mono mt-0.5">sealed bundle structures</span>
+          
+          {/* Sparkline Line Curve */}
+          <div className="h-8 mt-3 -mx-4 -mb-4 relative overflow-hidden">
+            <svg className="w-full h-full animate-fadeIn" viewBox="0 0 160 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradient-amber" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d="M 0 30 C 25 35, 45 15, 65 25 C 85 8, 105 20, 125 15 C 145 28, 150 12, 160 10 L 160 40 L 0 40 Z" fill="url(#gradient-amber)" />
+              <path d="M 0 30 C 25 35, 45 15, 65 25 C 85 8, 105 20, 125 15 C 145 28, 150 12, 160 10" fill="none" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-500 font-mono text-[10px] block uppercase tracking-wider">Audit Readiness</span>
-          <span className="text-emerald-400 font-mono text-[11px] font-semibold flex items-center gap-1.5 mt-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            98% Conformance
-          </span>
+
+        {/* Card 4: Audit Readiness */}
+        <div className="bg-[#111522]/45 border border-[#1b2131]/80 rounded-xl p-4 flex flex-col justify-between hover:border-emerald-500/40 hover:bg-[#111522]/60 transition-all shadow-lg relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-550 font-mono text-[10px] block uppercase tracking-wider font-semibold">Audit Readiness</span>
+            <div className="p-1 rounded bg-[#10b981]/10 text-emerald-400 group-hover:bg-[#10b981]/20 transition-all">
+              <Shield className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-emerald-400 font-sans text-xl sm:text-2xl font-bold tracking-tight">98%</span>
+            <span className="text-[10px] font-mono text-[#2dd4bf] font-bold">Excellent</span>
+          </div>
+          <span className="text-[9.5px] text-gray-500 font-mono mt-0.5">conformance rating index</span>
+          
+          {/* Sparkline Line Curve */}
+          <div className="h-8 mt-3 -mx-4 -mb-4 relative overflow-hidden">
+            <svg className="w-full h-full animate-fadeIn" viewBox="0 0 160 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradient-emerald" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d="M 0 15 C 20 14, 40 12, 60 14 C 80 8, 100 10, 120 7 C 140 11, 150 4, 160 5 L 160 40 L 0 40 Z" fill="url(#gradient-emerald)" />
+              <path d="M 0 15 C 20 14, 40 12, 60 14 C 80 8, 100 10, 120 7 C 140 11, 150 4, 160 5" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
         </div>
       </section>
 
@@ -776,6 +873,170 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
               </table>
             )}
           </div>
+
+          {/* Interactive Bento Analytics: AI Systems Overview & Recent Events */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 pt-8 border-t border-[#1F2937]/75">
+            {/* AI Systems Overview with beautiful Interactive SVG Donut Chart */}
+            <div className="bg-[#111522]/35 border border-[#1b2131]/80 rounded-xl p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+                    <PieChart className="w-3.5 h-3.5 text-indigo-400 animate-pulse" /> AI Systems Overview
+                  </h3>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-900/40 px-1.5 py-0.5 rounded font-bold">
+                    +8% this mo.
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
+                  {/* Glowing Ring Arc Chart */}
+                  <div className="relative w-32 h-32 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle cx="60" cy="60" r="44" stroke="#1f2937" strokeWidth="8" fill="none" opacity="0.4" />
+                      {/* Segment 1: Production (50%) */}
+                      <circle 
+                        cx="60" 
+                        cy="60" 
+                        r="44" 
+                        stroke="#10b981" 
+                        strokeWidth={hoveredSegment === 'production' ? "10" : "8"}
+                        strokeDasharray="138.2 276.4" 
+                        strokeDashoffset="0" 
+                        fill="none" 
+                        className="transition-all duration-300 cursor-pointer"
+                        onMouseEnter={() => setHoveredSegment('production')}
+                        onMouseLeave={() => setHoveredSegment('none')}
+                      />
+                      {/* Segment 2: Pilot (28.57%) */}
+                      <circle 
+                        cx="60" 
+                        cy="60" 
+                        r="44" 
+                        stroke="#f59e0b" 
+                        strokeWidth={hoveredSegment === 'pilot' ? "10" : "8"}
+                        strokeDasharray="78.9 276.4" 
+                        strokeDashoffset="-138.2" 
+                        fill="none" 
+                        className="transition-all duration-300 cursor-pointer"
+                        onMouseEnter={() => setHoveredSegment('pilot')}
+                        onMouseLeave={() => setHoveredSegment('none')}
+                      />
+                      {/* Segment 3: Development (21.43%) */}
+                      <circle 
+                        cx="60" 
+                        cy="60" 
+                        r="44" 
+                        stroke="#3b82f6" 
+                        strokeWidth={hoveredSegment === 'development' ? "10" : "8"}
+                        strokeDasharray="59.3 276.4" 
+                        strokeDashoffset="-217.1" 
+                        fill="none" 
+                        className="transition-all duration-300 cursor-pointer"
+                        onMouseEnter={() => setHoveredSegment('development')}
+                        onMouseLeave={() => setHoveredSegment('none')}
+                      />
+                    </svg>
+
+                    {/* Donut Center Label */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+                      <span className="text-xl font-bold font-sans text-white leading-none">
+                        {hoveredSegment === 'none' && '28'}
+                        {hoveredSegment === 'production' && '14'}
+                        {hoveredSegment === 'pilot' && '8'}
+                        {hoveredSegment === 'development' && '6'}
+                      </span>
+                      <span className="text-[8px] font-mono uppercase tracking-wider text-gray-500 mt-0.5 leading-none">
+                        {hoveredSegment === 'none' && 'Active Systems'}
+                        {hoveredSegment === 'production' && 'Production'}
+                        {hoveredSegment === 'pilot' && 'In Pilot'}
+                        {hoveredSegment === 'development' && 'Dev Mode'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* High Contrast Legends List */}
+                  <div className="space-y-2 font-mono text-[10px] w-full sm:w-auto">
+                    <div 
+                      className={`flex items-center justify-between gap-4 p-1.5 rounded transition-colors ${hoveredSegment === 'production' ? 'bg-[#10b981]/10' : ''}`}
+                      onMouseEnter={() => setHoveredSegment('production')}
+                      onMouseLeave={() => setHoveredSegment('none')}
+                    >
+                      <span className="flex items-center gap-1.5 text-gray-300">
+                        <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Production
+                      </span>
+                      <span className="text-white font-bold">14 systems</span>
+                    </div>
+                    <div 
+                      className={`flex items-center justify-between gap-4 p-1.5 rounded transition-colors ${hoveredSegment === 'pilot' ? 'bg-[#f59e0b]/10' : ''}`}
+                      onMouseEnter={() => setHoveredSegment('pilot')}
+                      onMouseLeave={() => setHoveredSegment('none')}
+                    >
+                      <span className="flex items-center gap-1.5 text-gray-300">
+                        <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Pilot Queue
+                      </span>
+                      <span className="text-white font-bold">8 systems</span>
+                    </div>
+                    <div 
+                      className={`flex items-center justify-between gap-4 p-1.5 rounded transition-colors ${hoveredSegment === 'development' ? 'bg-[#3b82f6]/10' : ''}`}
+                      onMouseEnter={() => setHoveredSegment('development')}
+                      onMouseLeave={() => setHoveredSegment('none')}
+                    >
+                      <span className="flex items-center gap-1.5 text-gray-300">
+                        <span className="w-2 h-2 rounded-full bg-[#3b82f6]" /> Development
+                      </span>
+                      <span className="text-white font-bold">6 systems</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Audit Events List Panel */}
+            <div className="bg-[#111522]/35 border border-[#1b2131]/80 rounded-xl p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-indigo-400" /> Recent Audit Events
+                  </h3>
+                  <span className="text-[9px] font-mono text-indigo-400 uppercase font-semibold">Live Feed</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  <div className="bg-[#090b12] border border-[#1F2937]/60 p-2 rounded flex items-center gap-2.5 hover:border-gray-700 transition-colors">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="flex-grow text-left leading-tight">
+                      <span className="text-gray-300 font-sans text-[11px] font-medium block">Legal Contract Review Agent</span>
+                      <span className="text-[9px] text-gray-500 font-mono">Sarah Johnson approved signature · 2m ago</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#090b12] border border-[#1F2937]/60 p-2 rounded flex items-center gap-2.5 hover:border-gray-700 transition-colors">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <div className="flex-grow text-left leading-tight">
+                      <span className="text-gray-300 font-sans text-[11px] font-medium block">Financial Reporting Copilot</span>
+                      <span className="text-[9px] text-gray-500 font-mono">Q1 Ledger Export sealed to disk · 15m ago</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#090b12] border border-[#1F2937]/60 p-2 rounded flex items-center gap-2.5 hover:border-gray-700 transition-colors">
+                    <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500" />
+                    <div className="flex-grow text-left leading-tight">
+                      <span className="text-gray-305 font-sans text-[11px] font-medium block">HR Policy Assistant</span>
+                      <span className="text-[9px] text-gray-500 font-mono">Michael Chen verified delta override · 1h ago</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#090b12] border border-[#1F2937]/60 p-2 rounded flex items-center gap-2.5 hover:border-gray-700 transition-colors">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <div className="flex-grow text-left leading-tight">
+                      <span className="text-gray-305 font-sans text-[11px] font-medium block">Vendor Risk Analyzer</span>
+                      <span className="text-[9px] text-gray-500 font-mono">Priya Shah signed conformance envelope · 2h ago</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Document Evidence Chain Detail View Column (Right) */}
@@ -853,6 +1114,9 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
                     <span className="text-[13px] text-white font-bold">{riskMetrics.governance}%</span>
                     <span className="text-[9px] text-[#2dd4bf] font-mono font-medium">Excellent</span>
                   </div>
+                  <div className="w-full bg-gray-900 h-1 rounded-full mt-2 overflow-hidden">
+                    <div className="bg-[#818cf8] h-full" style={{ width: `${riskMetrics.governance}%` }} />
+                  </div>
                 </div>
 
                 {/* Box 2: Toxicity */}
@@ -866,6 +1130,9 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
                   <div className="flex items-baseline justify-between mt-1">
                     <span className="text-[13px] text-white font-bold">{riskMetrics.toxicity}%</span>
                     <span className="text-[9px] text-emerald-400 font-mono font-medium">Safe Limit</span>
+                  </div>
+                  <div className="w-full bg-gray-900 h-1 rounded-full mt-2 overflow-hidden">
+                    <div className="bg-emerald-500 h-full" style={{ width: `${100 - parseFloat(riskMetrics.toxicity) * 10}%` }} />
                   </div>
                 </div>
 
@@ -881,6 +1148,9 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
                     <span className="text-[13px] text-white font-bold">{riskMetrics.hallucination}%</span>
                     <span className="text-[9px] text-emerald-400 font-mono font-medium">Low Prob</span>
                   </div>
+                  <div className="w-full bg-gray-900 h-1 rounded-full mt-2 overflow-hidden">
+                    <div className="bg-emerald-500 h-full" style={{ width: `${Math.max(0, 100 - parseFloat(riskMetrics.hallucination) * 20)}%` }} />
+                  </div>
                 </div>
 
                 {/* Box 4: Data Leakage */}
@@ -894,6 +1164,9 @@ export default function AuditConsole({ onBackToLanding }: AuditConsoleProps) {
                   <div className="flex items-baseline justify-[#d6d9e0] mt-1 space-x-1 justify-between">
                     <span className="text-[13px] text-white font-bold">{riskMetrics.leakage}%</span>
                     <span className="text-[9px] text-[#2dd4bf] font-mono font-medium">Air-Gapped</span>
+                  </div>
+                  <div className="w-full bg-gray-900 h-1 rounded-full mt-2 overflow-hidden">
+                    <div className="bg-[#2dd4bf] h-full" style={{ width: `${riskMetrics.leakage}%` }} />
                   </div>
                 </div>
               </div>
