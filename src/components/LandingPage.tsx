@@ -256,6 +256,27 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
   const [activationSuccess, setActivationSuccess] = useState(false);
   const [activationLogs, setActivationLogs] = useState<string[]>([]);
 
+  // Pilot Queue states
+  const [pilotCompanyName, setPilotCompanyName] = useState('');
+  const [pilotEmail, setPilotEmail] = useState('');
+  const [pilotUsageScale, setPilotUsageScale] = useState('Medium-scale (10-50 models)');
+  const [pilotQueueId, setPilotQueueId] = useState<number | null>(null);
+  const [isSubmittingPilot, setIsSubmittingPilot] = useState(false);
+  const [pilotSubmitted, setPilotSubmitted] = useState(false);
+
+  const handleRegisterPilotQueue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pilotCompanyName.trim() || !pilotEmail.trim()) return;
+
+    setIsSubmittingPilot(true);
+    setTimeout(() => {
+      const generatedId = Math.floor(100000 + Math.random() * 900000); // 6-digit number
+      setPilotQueueId(generatedId);
+      setIsSubmittingPilot(false);
+      setPilotSubmitted(true);
+    }, 1000);
+  };
+
   const handleVerifyActivationKey = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activationKeyInput.trim()) {
@@ -613,9 +634,6 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
       <section className="px-6 py-24 bg-[#0d111d] border-t border-[#1F2937]" id="compliance-gap">
         <div className="max-w-5xl mx-auto space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-mono font-bold text-[#f59e0b] bg-amber-950/20 border border-amber-900/35 px-3 py-1 rounded-full uppercase tracking-widest inline-block">
-              The Traceability Bottleneck
-            </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
               The Compliance Gap
             </h2>
@@ -735,9 +753,6 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
       <section className="px-6 py-24 bg-[#0a0e1a] border-t border-[#1F2937]" id="why-aiec">
         <div className="max-w-5xl mx-auto space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-3 py-1 rounded-full uppercase tracking-widest inline-block">
-              Strategic AI System of Record
-            </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
               Why Enterprises Choose AIEC
             </h2>
@@ -994,9 +1009,6 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
       <section className="px-6 py-24 bg-[#0d111d] border-t border-[#1F2937]" id="certification-report">
         <div className="max-w-5xl mx-auto space-y-16 flex flex-col items-center">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/20 border border-emerald-900/40 px-3 py-1 rounded-full uppercase tracking-widest inline-block">
-              Board-Ready Deliverable Artifact
-            </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
               Executive AI Governance Assessment
             </h2>
@@ -1148,9 +1160,6 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
       <section className="px-6 py-24 bg-[#0c101a] border-t border-[#1F2937]" id="live-playground-section">
         <div className="max-w-5xl mx-auto space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/20 border border-emerald-900/40 px-3 py-1 rounded-full uppercase tracking-widest inline-block animate-pulse">
-              Interactive local sandbox playground
-            </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
               Interactive GRC Sandbox
             </h2>
@@ -2421,7 +2430,110 @@ export default function LandingPage({ onEnterConsole, onEnterSubPage }: LandingP
       )}
 
       {/* Footer */}
-      <footer className="border-t border-[#1F2937] bg-[#070a11] px-6 py-10 text-xs text-gray-500" id="landing-footer">
+      <footer className="border-t border-[#1F2937] bg-[#070a11] px-6 py-12 text-xs text-gray-500" id="landing-footer">
+        
+        {/* Pilot Queue Registration Form Section */}
+        <div className="max-w-4xl mx-auto mb-10 p-6 rounded-xl bg-[#0b0e17] border border-indigo-950/60 relative overflow-hidden" id="pilot-queue-section">
+          {/* Subtle accent border */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500/10 via-indigo-500/35 to-indigo-500/10"></div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-5 text-left space-y-2">
+              <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest block">EXCLUSIVE OFFERS</span>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Join Pilot Queue
+              </h3>
+              <p className="text-[10.5px] text-gray-400 leading-relaxed font-sans">
+                Secure your slot in the private compliance pilot cohort. We are onboarding compliance teams on a rolling basis.
+              </p>
+            </div>
+            
+            <div className="md:col-span-7">
+              {!pilotSubmitted ? (
+                <form onSubmit={handleRegisterPilotQueue} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <input 
+                        type="text"
+                        required
+                        disabled={isSubmittingPilot}
+                        value={pilotCompanyName}
+                        onChange={(e) => setPilotCompanyName(e.target.value)}
+                        placeholder="Company Name"
+                        className="w-full bg-[#05060a] border border-[#1F2937] focus:border-indigo-500 hover:border-indigo-900/40 text-xs text-white px-3.5 py-2.5 rounded focus:outline-none placeholder-gray-650 font-sans"
+                        id="pilot-company-field"
+                      />
+                    </div>
+                    <div>
+                      <input 
+                        type="email"
+                        required
+                        disabled={isSubmittingPilot}
+                        value={pilotEmail}
+                        onChange={(e) => setPilotEmail(e.target.value)}
+                        placeholder="Corporate Email Address"
+                        className="w-full bg-[#05060a] border border-[#1F2937] focus:border-indigo-500 hover:border-indigo-900/40 text-xs text-white px-3.5 py-2.5 rounded focus:outline-none placeholder-gray-650 font-sans"
+                        id="pilot-email-field"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2.5">
+                    <div className="flex-grow">
+                      <select
+                        disabled={isSubmittingPilot}
+                        value={pilotUsageScale}
+                        onChange={(e) => setPilotUsageScale(e.target.value)}
+                        className="w-full bg-[#05060a] border border-[#1F2937] focus:border-indigo-500 hover:border-indigo-900/40 text-xs text-white px-3.5 py-2.5 rounded focus:outline-none font-sans cursor-pointer"
+                        id="pilot-scale-field"
+                      >
+                        <option value="Small-scale (<10 models)">Small-scale (&lt;10 models)</option>
+                        <option value="Medium-scale (10-50 models)">Medium-scale (10-50 models)</option>
+                        <option value="Enterprise (50+ models)">Enterprise (50+ models)</option>
+                      </select>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingPilot}
+                      className="bg-emerald-500 hover:bg-emerald-450 text-[#0f131d] hover:scale-[1.01] active:scale-[0.99] font-bold text-xs px-5 py-2.5 rounded font-mono transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed uppercase whitespace-nowrap"
+                      id="pilot-submit-button"
+                    >
+                      {isSubmittingPilot ? 'Enrolling...' : 'Join Queue'}
+                      <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-4 bg-emerald-950/20 border border-emerald-900/50 rounded-lg text-left text-emerald-400 space-y-2 animate-fade-in" id="pilot-success-container">
+                  <div className="flex items-center gap-2 font-mono font-bold text-xs">
+                    <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    <span>REGISTRATION SUCCESSFUL — QUEUE ID: #{pilotQueueId}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300 leading-relaxed font-sans">
+                    Thank you <strong className="text-white">{pilotCompanyName}</strong> (<span className="text-slate-400">{pilotEmail}</span>) for registering for our Pilot. 
+                    Your application with scale level <span className="text-[#2dd4bf] font-medium">{pilotUsageScale}</span> has been indexed onto our secure, verified pipeline.
+                  </p>
+                  <p className="text-[10.5px] text-emerald-300/90 leading-relaxed font-sans pt-1 border-t border-emerald-950/40">
+                    Once your queue status is marked as <strong className="text-white">Completed</strong>, you will receive an email with your custom, secure activation key to unlock the compliance sandbox.
+                  </p>
+                  <div className="pt-1 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPilotSubmitted(false);
+                        setPilotCompanyName('');
+                        setPilotEmail('');
+                      }}
+                      className="text-[10px] font-mono hover:underline text-gray-400 hover:text-white cursor-pointer bg-transparent border-0 outline-none"
+                    >
+                      Register another organization
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6 text-center md:text-left">
             <AiecLogo size="xs" showText={true} />
